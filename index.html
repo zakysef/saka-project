@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>SAKA - Saga Karakter Nusantara</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    @keyframes slideIn {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    
+    /* Core animations */
+    .slide-in { animation: slideIn 0.3s ease-out; }
+    .cart-drawer { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    /* Navbar states */
+    .navbar-initial {
+      background: transparent;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .navbar-scrolled {
+      background: rgba(140, 16, 7, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Improved navbar styles */
+    .navbar-initial .nav-link {
+      color: #8C1007;
+      transition: color 0.3s ease;
+    }
+    
+    .navbar-initial .nav-link:hover {
+      color: #3E0703;
+    }
+    
+    .navbar-scrolled .nav-link {
+      color: #FEF9E1;
+    }
+    
+    .navbar-scrolled .nav-link:hover {
+      color: white;
+    }
+
+    /* Navbar brand transition */
+    .navbar-brand {
+      transition: color 0.3s ease;
+    }
+    
+    .navbar-initial .navbar-brand {
+      color: #8C1007;
+    }
+    
+    .navbar-scrolled .navbar-brand {
+      color: #FEF9E1;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(140, 16, 7, 0.5);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(140, 16, 7, 0.8);
+    }
+
+    /* Smooth transitions */
+    .hover-lift { transition: transform 0.2s ease-out; }
+    .hover-lift:hover { transform: translateY(-2px); }
+
+    /* Mobile menu animation */
+    .mobile-menu-open {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .mobile-menu-closed {
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .menu-backdrop {
+      transition: all 0.3s ease-in-out;
+    }
+    
+    /* Login form styles */
+    .login-overlay {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+    }
+    
+    .login-form {
+      animation: slideUp 0.4s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Toggle between login/register forms */
+    .auth-form {
+      transition: all 0.3s ease;
+    }
+
+    .form-hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(1rem);
+      position: absolute;
+    }
+
+    /* Button styles */
+    .btn-primary {
+      @apply px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95;
+    }
+    
+    .btn-ghost {
+      @apply px-4 py-2 rounded-full transition-all duration-300 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+
+    /* Mobile cart styles */
+    .cart-popup {
+      animation: slideUp 0.3s ease-out;
+      transform-origin: bottom;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+
+  <!-- SEO / Social -->
+  <meta name="description" content="SAKA - permainan kartu karakter Nusantara. Koleksi, pelajari cerita, pesan melalui WhatsApp.">
+  <meta property="og:title" content="SAKA - Saga Karakter Nusantara">
+  <meta property="og:description" content="Koleksi kartu pahlawan, legenda, dan mitos Nusantara.">
+  <meta property="og:image" content="assets/logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body class="bg-black text-white font-sans scroll-smooth">
+  <!-- Login Overlay -->
+  <div id="login-overlay" class="login-overlay fixed inset-0 z-[70] flex items-center justify-center px-4 hidden">
+    <div class="login-form bg-white rounded-2xl p-8 w-full max-w-md text-gray-800">
+      <div class="flex justify-between items-center mb-6">
+        <h2 id="auth-title" class="text-2xl font-bold text-[#8C1007]">Masuk ke SAKA</h2>
+        <button onclick="toggleLogin(false)" class="text-gray-500 hover:text-gray-700">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Username</label>
+          <input type="text" id="login-username" required 
+                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#8C1007] focus:border-[#8C1007] outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Password</label>
+          <input type="password" id="login-password" required 
+                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#8C1007] focus:border-[#8C1007] outline-none">
+        </div>
+        <button type="submit" class="w-full py-3 bg-[#8C1007] text-white rounded-lg hover:bg-[#8C1007]/90 transition-colors">
+          Masuk
+        </button>
+        <p class="text-center text-sm">
+          Belum punya akun? 
+          <button type="button" onclick="toggleAuthForm('register')" class="text-[#8C1007] hover:underline">Daftar</button>
+        </p>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" class="auth-form form-hidden space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Username</label>
+          <input type="text" id="register-username" required 
+                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#8C1007] focus:border-[#8C1007] outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Password</label>
+          <input type="password" id="register-password" required 
+                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#8C1007] focus:border-[#8C1007] outline-none">
+        </div>
+        <button type="submit" class="w-full py-3 bg-[#8C1007] text-white rounded-lg hover:bg-[#8C1007]/90 transition-colors">
+          Daftar
+        </button>
+        <p class="text-center text-sm">
+          Sudah punya akun? 
+          <button type="button" onclick="toggleAuthForm('login')" class="text-[#8C1007] hover:underline">Masuk</button>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-500 navbar-initial">
+    <div class="max-w-6xl mx-auto flex items-center justify-between p-4">
+      <!-- Update logo area -->
+      <div class="flex items-center space-x-3 hover-lift">
+        <img src="assets/logo.png" alt="Logo SAKA" class="w-12 h-12 drop-shadow-lg transition-all duration-500 navbar-scrolled:invert navbar-scrolled:brightness-200">
+        <span class="navbar-brand font-bold text-xl drop-shadow">SAKA</span>
+      </div>
+      
+      <!-- Update desktop menu -->
+      <div class="hidden md:flex items-center space-x-6">
+        <a href="#tentang" class="nav-link hover:scale-105 transition-transform">Tentang</a>
+        <a href="#cara" class="nav-link hover:scale-105 transition-transform">Cara Bermain</a>
+        <a href="#beli" class="nav-link hover:scale-105 transition-transform">Beli</a>
+        <button id="cart-toggle-desktop" class="flex items-center gap-2 nav-link transition-transform hover:scale-105">
+          <i class="bi bi-cart3"></i>
+          <span id="cart-count" class="font-medium">0</span>
+        </button>
+        <div id="auth-buttons">
+          <button onclick="toggleLogin(true)" class="btn-primary px-6 py-3 rounded-2xl bg-[#8C1007] text-[#FEF9E1] hover:bg-[#8C1007]/90">
+            <i class="bi bi-person-circle mr-2"></i>Masuk
+          </button>
+        </div>
+        <div id="user-info" class="hidden">
+          <div class="flex items-center gap-2">
+            <span id="username-display" class="nav-link"></span>
+            <button onclick="handleLogout()" 
+                    class="nav-link px-3 py-1.5 rounded-full hover:bg-[#FEF9E1]/10 transition-colors">
+              <i class="bi bi-box-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Mobile menu button -->
+      <div class="flex md:hidden items-center gap-3">
+        <button id="cart-toggle-mobile" class="nav-link p-2 transition-colors">
+          <i class="bi bi-cart3"></i>
+          <span id="cart-count-mobile" class="text-sm">0</span>
+        </button>
+        <button id="nav-toggle" class="p-2 hover:bg-[#FEF9E1]/10 rounded-full transition-colors">
+          <i class="bi bi-list text-2xl nav-link"></i>
+        </button>
+      </div>
+    </div>
+    <!-- Mobile menu panel -->
+    <div id="mobile-menu" class="fixed inset-0 bg-black/50 menu-backdrop hidden">
+      <div class="fixed top-0 inset-x-0 bg-[#8C1007] p-4 transform transition-all duration-300 mobile-menu-closed">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <img src="assets/logo.png" alt="Logo SAKA" class="w-10 h-10">
+            <span class="font-bold text-lg text-[#FEF9E1]">SAKA</span>
+          </div>
+          <button id="mobile-menu-close" class="p-2 text-[#FEF9E1] hover:bg-[#FEF9E1]/10 rounded-full">
+            <i class="bi bi-x-lg text-xl"></i>
+          </button>
+        </div>
+
+        <!-- Add mobile user info -->
+        <div id="mobile-user-info" class="hidden mb-4">
+          <div class="flex items-center justify-between px-4 py-2 bg-[#FEF9E1]/10 rounded-lg">
+            <span id="mobile-username-display" class="text-[#FEF9E1]"></span>
+            <button onclick="handleLogout()" class="text-[#FEF9E1] hover:bg-[#FEF9E1]/10 p-2 rounded-full">
+              <i class="bi bi-box-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Add mobile auth button -->
+        <div id="mobile-auth-button" class="mb-4">
+          <button onclick="toggleLogin(true)" class="w-full py-2 px-4 bg-[#FEF9E1] text-[#8C1007] rounded-lg hover:bg-[#FEF9E1]/90 transition-colors">
+            <i class="bi bi-person-circle mr-2"></i>Masuk / Daftar
+          </button>
+        </div>
+
+        <div class="space-y-1">
+          <a href="#tentang" class="block py-3 px-4 text-[#FEF9E1] hover:bg-[#FEF9E1]/10 rounded-lg transition-colors">
+            <i class="bi bi-info-circle mr-2"></i>Tentang
+          </a>
+          <a href="#cara" class="block py-3 px-4 text-[#FEF9E1] hover:bg-[#FEF9E1]/10 rounded-lg transition-colors">
+            <i class="bi bi-joystick mr-2"></i>Cara Bermain
+          </a>
+          <a href="#beli" class="block py-3 px-4 text-[#FEF9E1] hover:bg-[#FEF9E1]/10 rounded-lg transition-colors">
+            <i class="bi bi-bag mr-2"></i>Beli
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="min-h-screen pt-16 flex items-center text-center bg-gradient-to-br from-[#FEF9E1] to-[#FFE5B4] relative overflow-hidden">
+    <img src="assets/icon_saka.png" alt="Icon SAKA" 
+         class="fixed right-0 md:right-0 
+                md:top-20 top-20
+                md:h-[130vh] h-[110vh] 
+                w-auto object-cover
+                opacity-20 z-0 pointer-events-none">
+    <div class="z-10 w-full max-w-5xl mx-auto px-6 md:px-12 flex flex-col items-center md:items-start text-center md:text-left">
+      <img src="assets/logo.png" alt="Logo SAKA" class="w-44 md:w-56 mb-6 hover-lift">
+      <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold tracking-wide text-[#8C1007] leading-tight drop-shadow-sm">
+        Saga Karakter Nusantara
+      </h1>
+      <p class="mt-4 text-md md:text-lg text-[#3E0703]/90 max-w-xl">
+        Pahlawan • Legenda • Mitos
+      </p>
+      <a href="#tentang" class="mt-8 px-6 py-3 bg-[#8C1007] text-[#FEF9E1] font-semibold rounded-2xl shadow-lg hover-lift transition-all duration-300 self-center md:self-start">
+        Jelajahi
+      </a>
+    </div>
+  </section>
+
+  <!-- Tentang - fixed mobile padding -->
+  <section id="tentang" class="py-20 bg-[#FEF9E1] relative z-10">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
+      <div class="text-center md:text-left">
+        <h2 class="text-3xl font-bold mb-4 text-[#8C1007]">Tentang SAKA</h2>
+        <p class="text-[#3E0703] leading-relaxed"><b>SAKA</b> adalah permainan kartu yang menghadirkan berbagai tokoh dan karakter dari Nusantara — pahlawan, legenda, mitos.</p>
+      </div>
+      <div class="flex justify-center space-x-6">
+        <div class="w-44 h-72 md:w-56 md:h-80 bg-white rounded-xl shadow-lg transition-all hover-lift overflow-hidden cursor-pointer group" onclick="showImageModal('assets/front_card.png', 'Kartu Depan')">
+          <img src="assets/front_card.png" alt="Kartu Depan" class="w-full h-full object-cover rounded-xl transition-transform duration-300 group-hover:scale-105">
+        </div>
+        <div class="w-44 h-72 md:w-56 md:h-80 bg-gray-500 rounded-xl shadow-lg transition flex items-center justify-center overflow-hidden cursor-pointer hover:opacity-90" onclick="showImageModal('assets/back_card.png', 'Kartu Belakang')">
+          <img src="assets/back_card.png" alt="Kartu Belakang" class="w-full h-full object-cover rounded-xl">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cara Bermain -->
+  <section id="cara" class="py-20 bg-[#8C1007] text-[#FEF9E1] relative overflow-hidden">
+    <div class="max-w-6xl mx-auto text-center px-4 relative z-10">
+      <h2 class="text-3xl font-bold mb-12">Cara Bermain</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="cara-card p-6 bg-[#FEF9E1] rounded-xl shadow-lg hover-lift">
+          <div class="text-[#8C1007] mb-4">
+            <i class="bi bi-1-circle-fill text-3xl"></i>
+          </div>
+          <h3 class="text-[#8C1007] font-semibold text-xl mb-3">Pilih Kartu</h3>
+          <p class="text-[#3E0703]">Pilih karakter Nusantara yang akan menjadi andalanmu.</p>
+        </div>
+        <div class="cara-card p-6 bg-[#FEF9E1] rounded-xl shadow-lg">
+          <div class="text-[#8C1007] mb-4">
+            <i class="bi bi-2-circle-fill text-3xl"></i>
+          </div>
+          <h3 class="text-[#8C1007] font-semibold text-xl mb-3">Atur Strategi</h3>
+          <p class="text-[#3E0703]">Gunakan kekuatan unik dari setiap kartu dengan cerdas.</p>
+        </div>
+        <div class="cara-card p-6 bg-[#FEF9E1] rounded-xl shadow-lg">
+          <div class="text-[#8C1007] mb-4">
+            <i class="bi bi-3-circle-fill text-3xl"></i>
+          </div>
+          <h3 class="text-[#8C1007] font-semibold text-xl mb-3">Menangkan Pertarungan</h3>
+          <p class="text-[#3E0703]">Kalahkan lawanmu dan jadilah penguasa legenda Nusantara.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Beli section - fixed mobile buttons -->
+  <section id="beli" class="py-20 bg-[#8C1007]">
+    <div class="max-w-6xl mx-auto text-center">
+      <h2 class="text-3xl font-bold mb-8 text-[#FEF9E1]">Beli Kartu SAKA!</h2>
+      <p class="text-[#FEF9E1] mb-8">Pilih packaging sesuai kebutuhanmu. Setiap pack berisi kartu acak (gacha).</p>
+
+      <div class="relative">
+        <!-- nav buttons -->
+        <button id="pack-prev" aria-label="Previous packaging" class="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-black/40 text-white rounded-full w-10 h-10 hover:bg-black/60 hidden md:flex items-center justify-center">‹</button>
+        <button id="pack-next" aria-label="Next packaging" class="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-black/40 text-white rounded-full w-10 h-10 hover:bg-black/60 hidden md:flex items-center justify-center">›</button>
+
+        <!-- carousel track -->
+        <div class="carousel overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide">
+          <div class="carousel-track flex w-full">
+            <!-- Slide 1: Booster -->
+            <div class="min-w-full flex-shrink-0 snap-start px-6 md:px-0">
+              <div class="flex flex-col items-center">
+                <div data-pack-id="booster" class="w-72 md:w-80 h-72 md:h-[420px] bg-white rounded-xl shadow-lg transition-all hover-lift overflow-hidden cursor-pointer group" onclick="showImageModal('assets/booster_pack.png', 'Booster Pack')">
+                  <img src="assets/booster_pack.png" alt="Booster Pack" class="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105">
+                </div>
+                <div class="mt-4">
+                  <div class="text-[#FEF9E1] font-medium">Booster Pack</div>
+                  <div class="text-[#FEF9E1] pack-price mt-1" data-pack-id="booster">Rp —</div>
+                  <button class="add-pack-btn mt-3 px-4 py-2 rounded-lg bg-[#FEF9E1] text-[#8C1007] inline-block hover-lift transition-colors hover:bg-[#FEF9E1/90" data-pack-id="booster">
+                    <i class="bi bi-cart-plus mr-2"></i>Tambah ke Keranjang
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide 2: Starter -->
+            <div class="min-w-full flex-shrink-0 snap-start px-6 md:px-0">
+              <div class="flex flex-col items-center">
+                <div data-pack-id="starter" class="w-72 md:w-[420px] h-72 md:h-[420px] bg-gray-700 rounded-xl shadow-lg transition overflow-hidden flex items-center justify-center p-2 mx-auto cursor-pointer hover:opacity-90" onclick="showImageModal('assets/starter_pack.png', 'Starter Pack')">
+                  <img src="assets/starter_pack.png" alt="Starter Pack" class="w-full h-full object-cover">
+                </div>
+                <div class="mt-4">
+                  <div class="text-[#FEF9E1] font-medium">Starter Pack</div>
+                  <div class="text-[#FEF9E1] pack-price mt-1" data-pack-id="starter">Rp — <span class="pack-promo text-sm ml-2 text-yellow-300"></span></div>
+                  <button class="add-pack-btn mt-3 px-4 py-2 rounded-lg bg-[#FEF9E1] text-[#8C1007] inline-block hover-lift transition-colors hover:bg-[#FEF9E1]/90" data-pack-id="starter">
+                    <i class="bi bi-cart-plus mr-2"></i>Tambah ke Keranjang
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- pagination dots - hidden on mobile -->
+        <div class="pagination-dots hidden md:flex items-center justify-center gap-2 mt-4">
+          <button class="w-2 h-2 rounded-full bg-white/30 hover:bg-white/50 transition" data-slide="0"></button>
+          <button class="w-2 h-2 rounded-full bg-white/30 hover:bg-white/50 transition" data-slide="1"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal: packaging detail -->
+  <div id="char-modal" class="fixed inset-0 hidden z-50 items-center justify-center bg-black/60 p-4">
+    <div class="bg-white text-black rounded-xl max-w-3xl w-full overflow-auto">
+      <div class="p-4 flex justify-between items-start">
+        <h3 id="char-modal-title" class="text-xl font-bold"></h3>
+        <button id="char-modal-close" class="text-gray-600">✕</button>
+      </div>
+      <div class="p-4 grid md:grid-cols-2 gap-4">
+        <div id="char-modal-image" class="rounded overflow-hidden flex items-center justify-center bg-gray-100"></div>
+        <div>
+          <p id="char-modal-desc" class="mb-3"></p>
+          <div id="char-modal-packinfo" class="mb-4 text-sm text-gray-700"></div>
+          <div class="flex gap-3">
+            <button id="add-to-cart" class="px-4 py-2 bg-[#8C1007] text-[#FEF9E1] rounded">Tambah ke Keranjang</button>
+            <button id="buy-now" class="px-4 py-2 bg-green-600 text-white rounded">Beli via WhatsApp</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart drawer - add backdrop -->
+  <div id="cart-backdrop" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+  <aside id="cart-drawer" class="cart-drawer fixed inset-y-0 right-0 w-full md:w-96 transform translate-x-full bg-white text-black shadow-lg z-50 flex flex-col">
+    <div class="p-4 border-b flex items-center justify-between">
+      <h3 class="font-bold flex items-center gap-2">
+        <i class="bi bi-cart3"></i> Keranjang
+      </h3>
+      <button onclick="toggleCart(false)" class="p-2 hover:bg-gray-100 rounded-full">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-auto p-4 space-y-2" id="cart-items"></div>
+    
+    <div class="sticky bottom-0 p-4 bg-white border-t">
+      <div id="cart-total" class="mb-3"></div>
+      <div id="cart-promo-note" class="text-sm mb-2"></div>
+      <button id="checkout-wa" class="w-full px-4 py-3 bg-[#8C1007] text-[#FEF9E1] rounded-full">
+        Pesan via WhatsApp
+      </button>
+    </div>
+  </aside>
+
+  <!-- Footer -->
+  <footer class="bg-[#8C1007] py-6 text-center text-[#FEF9E1]">
+    © 2025 SAKA Games - FIKSI. Semua Hak Dilindungi.
+  </footer>
+
+  <!-- Toast container (small feedback for add-to-cart) -->
+  <div id="saka-toast" class="fixed bottom-6 right-6 z-50 hidden">
+    <div id="saka-toast-inner" class="bg-black/80 text-white px-4 py-2 rounded shadow-lg"></div>
+  </div>
+
+  <!-- Loading spinner -->
+  <div id="loading-spinner" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-6 flex flex-col items-center shadow-lg slide-in">
+      <div class="w-12 h-12 border-4 border-[#8C1007] border-t-transparent rounded-full animate-spin"></div>
+      <div class="mt-4 font-medium">Memuat data...</div>
+    </div>
+  </div>
+
+  <!-- Image Modal -->
+  <div id="image-modal" class="fixed inset-0 hidden z-[60] items-center justify-center bg-black/90 p-4">
+    <button onclick="hideImageModal()" class="absolute top-4 right-4 text-white text-xl p-2 hover:bg-white/10 rounded-full">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <img id="modal-image" src="" alt="" class="max-w-full max-h-[90vh] object-contain transform transition-transform duration-200" onclick="toggleZoom(this)">
+    <div id="modal-caption" class="absolute bottom-4 left-0 right-0 text-center text-white text-lg"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Update navbar scroll behavior
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 20) {
+        navbar.classList.add('navbar-scrolled');
+        navbar.classList.remove('navbar-initial');
+      } else {
+        navbar.classList.remove('navbar-scrolled');
+        navbar.classList.add('navbar-initial');
+      }
+    });
+    
+    // Trigger scroll check on page load
+    window.dispatchEvent(new Event('scroll'));
+    
+    // Simple carousel pagination
+    const carousel = document.querySelector('.carousel');
+    const track = document.querySelector('.carousel-track');
+    const dots = document.querySelectorAll('[data-slide]');
+    const prev = document.getElementById('pack-prev');
+    const next = document.getElementById('pack-next');
+
+    function scrollToSlide(index) {
+      const slides = track ? track.children : [];
+      if (slides[index]) {
+        slides[index].scrollIntoView({ behavior: 'smooth', inline: 'start' });
+        dots.forEach((d,i) => d.classList.toggle('bg-white', i === index));
+      }
+    }
+
+    dots.forEach(dot => {
+      dot.onclick = () => scrollToSlide(parseInt(dot.dataset.slide));
+    });
+
+    prev && (prev.onclick = () => {
+      const current = Math.round((carousel?.scrollLeft || 0) / (carousel?.offsetWidth || 1));
+      scrollToSlide(Math.max(0, current - 1));
+    });
+
+    next && (next.onclick = () => {
+      const current = Math.round((carousel?.scrollLeft || 0) / (carousel?.offsetWidth || 1));
+      scrollToSlide(Math.min(dots.length - 1, current + 1));
+    });
+
+    // Mark first dot as active initially
+    if (dots[0]) dots[0].classList.add('bg-white');
+
+    // Mobile menu toggle
+    const navToggle = document.getElementById('nav-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuContent = mobileMenu?.querySelector('div:first-child');
+    const mobileMenuClose = document.getElementById('mobile-menu-close');
+
+    function toggleMobileMenu(show) {
+      if (!mobileMenu || !mobileMenuContent) return;
+      
+      if (show) {
+        mobileMenu.classList.remove('hidden');
+        // Allow animation to start
+        requestAnimationFrame(() => {
+          mobileMenuContent.classList.remove('mobile-menu-closed');
+          mobileMenuContent.classList.add('mobile-menu-open');
+          document.body.style.overflow = 'hidden';
+        });
+      } else {
+        mobileMenuContent.classList.remove('mobile-menu-open');
+        mobileMenuContent.classList.add('mobile-menu-closed');
+        document.body.style.overflow = '';
+        // Wait for animation to finish before hiding
+        setTimeout(() => {
+          mobileMenu.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    navToggle?.addEventListener('click', () => toggleMobileMenu(true));
+    mobileMenuClose?.addEventListener('click', () => toggleMobileMenu(false));
+
+    // Close menu when clicking outside
+    mobileMenu?.addEventListener('click', (e) => {
+      if (e.target === mobileMenu) {
+        toggleMobileMenu(false);
+      }
+    });
+
+    // Close menu when clicking links
+    mobileMenu?.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => toggleMobileMenu(false));
+    });
+
+    // Close menu on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') toggleMobileMenu(false);
+    });
+
+    // Cart counters sync helper used by app.js
+    function updateCartCounts(count) {
+      const counters = ['cart-count', 'cart-count-mobile'];
+      counters.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.textContent = count;
+      });
+    }
+
+    // Image modal functions - updated
+    let isZoomed = false;
+    function showImageModal(src, caption) {
+      const modal = document.getElementById('image-modal');
+      const img = document.getElementById('modal-image');
+      const cap = document.getElementById('modal-caption');
+      
+      if (modal && img && cap) {
+        img.src = src;
+        img.alt = caption;
+        img.style.transform = 'scale(1)';
+        img.style.cursor = 'zoom-in';
+        isZoomed = false;
+        cap.textContent = caption;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.style.opacity = '1'; // Reset opacity
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function hideImageModal() {
+      const modal = document.getElementById('image-modal');
+      const img = document.getElementById('modal-image');
+      if (!modal || !img) return;
+      
+      document.body.style.overflow = '';
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      modal.style.opacity = '1'; // Reset opacity
+      img.src = ''; // Clear source to prevent memory leak
+      isZoomed = false;
+    }
+
+    // Add zoom functionality - updated
+    function toggleZoom(img) {
+      if (!img) return;
+      isZoomed = !isZoomed;
+      img.style.transform = isZoomed ? 'scale(1.5)' : 'scale(1)';
+      img.style.cursor = isZoomed ? 'zoom-out' : 'zoom-in';
+    }
+
+    // Close modal when clicking outside image - updated
+    document.getElementById('image-modal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'image-modal') {
+        hideImageModal();
+        e.stopPropagation(); // Prevent event bubbling
+      }
+    });
+
+    // Login functionality
+    function toggleLogin(show) {
+      const overlay = document.getElementById('login-overlay');
+      if (overlay) {
+        overlay.classList.toggle('hidden', !show);
+        document.body.style.overflow = show ? 'hidden' : '';
+      }
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+      
+      // Demo credentials check
+      if (username === 'demo@saka.com' && password === 'demo123') {
+        toggleLogin(false);
+        alert('Login berhasil! (Demo Mode)');
+        // You could store login state in localStorage
+        localStorage.setItem('sakaLoggedIn', 'true');
+      } else {
+        alert('Email atau password salah! (Gunakan credentials demo)');
+      }
+    }
+
+    // Auth related functions
+    const users = JSON.parse(localStorage.getItem('sakaUsers') || '{}');
+    
+    function toggleAuthForm(type) {
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+      const authTitle = document.getElementById('auth-title');
+      
+      if (type === 'register') {
+        loginForm.classList.add('form-hidden');
+        registerForm.classList.remove('form-hidden');
+        authTitle.textContent = 'Daftar Akun';
+      } else {
+        registerForm.classList.add('form-hidden');
+        loginForm.classList.remove('form-hidden');
+        authTitle.textContent = 'Masuk ke SAKA';
+      }
+    }
+
+    function updateAuthDisplay(username = null) {
+      const authButtons = document.getElementById('auth-buttons');
+      const userInfo = document.getElementById('user-info');
+      const usernameDisplay = document.getElementById('username-display');
+      const mobileAuthButton = document.getElementById('mobile-auth-button');
+      const mobileUserInfo = document.getElementById('mobile-user-info');
+      const mobileUsernameDisplay = document.getElementById('mobile-username-display');
+      
+      if (username) {
+        // Desktop
+        authButtons.classList.add('hidden');
+        userInfo.classList.remove('hidden');
+        usernameDisplay.textContent = username;
+        
+        // Mobile
+        mobileAuthButton.classList.add('hidden');
+        mobileUserInfo.classList.remove('hidden');
+        mobileUsernameDisplay.textContent = username;
+      } else {
+        // Desktop
+        authButtons.classList.remove('hidden');
+        userInfo.classList.add('hidden');
+        usernameDisplay.textContent = '';
+        
+        // Mobile
+        mobileAuthButton.classList.remove('hidden');
+        mobileUserInfo.classList.add('hidden');
+        mobileUsernameDisplay.textContent = '';
+      }
+    }
+
+    // Check if user is logged in on page load
+    const currentUser = localStorage.getItem('sakaCurrentUser');
+    if (currentUser) {
+      updateAuthDisplay(currentUser);
+    }
+
+    // Handle Login
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      if (users[username] === password) {
+        localStorage.setItem('sakaCurrentUser', username);
+        updateAuthDisplay(username);
+        toggleLogin(false);
+      } else {
+        alert('Username atau password salah!');
+      }
+    });
+
+    // Handle Register
+    document.getElementById('register-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('register-username').value;
+      const password = document.getElementById('register-password').value;
+
+      if (users[username]) {
+        alert('Username sudah digunakan!');
+        return;
+      }
+
+      users[username] = password;
+      localStorage.setItem('sakaUsers', JSON.stringify(users));
+      localStorage.setItem('sakaCurrentUser', username);
+      updateAuthDisplay(username);
+      toggleLogin(false);
+    });
+
+    // Handle Logout
+    function handleLogout() {
+      localStorage.removeItem('sakaCurrentUser');
+      updateAuthDisplay();
+      toggleMobileMenu(false); // Close mobile menu after logout
+    }
+
+    // Close login on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') toggleLogin(false);
+    });
+
+    // Close login when clicking overlay
+    document.getElementById('login-overlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'login-overlay') toggleLogin(false);
+    });
+
+    // Updated cart toggle function with better scroll handling
+    let isCartOpen = false;
+    function toggleCart(show) {
+      const drawer = document.getElementById('cart-drawer');
+      const backdrop = document.getElementById('cart-backdrop');
+      const body = document.body;
+      
+      if (!drawer) return;
+      
+      isCartOpen = show;
+      
+      if (show) {
+        drawer.style.transform = 'translateX(0)';
+        backdrop.classList.remove('hidden');
+        body.style.overflow = 'hidden';
+        body.style.paddingRight = 'var(--scrollbar-width)'; // Prevent layout shift
+      } else {
+        drawer.style.transform = 'translateX(100%)';
+        backdrop.classList.add('hidden');
+        
+        // Wait for transition to complete before restoring scroll
+        setTimeout(() => {
+          // Only restore scroll if no other modals are open
+          const hasOpenModals = (
+            !document.querySelector('.login-overlay:not(.hidden)') &&
+            !document.querySelector('#mobile-menu:not(.hidden)') &&
+            !document.querySelector('#image-modal:not(.hidden)')
+          );
+          
+          if (hasOpenModals) {
+            body.style.overflow = '';
+            body.style.paddingRight = '';
+          }
+        }, 300); // Match transition duration
+      }
+    }
+
+    // Calculate scrollbar width on load to prevent layout shift
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+    
+    // Add event listeners for cart toggle
+    document.getElementById('cart-toggle-desktop')?.addEventListener('click', () => toggleCart(true));
+    document.getElementById('cart-toggle-mobile')?.addEventListener('click', () => toggleCart(true));
+    document.getElementById('cart-backdrop')?.addEventListener('click', () => toggleCart(false));
+    
+    // Close cart on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isCartOpen) {
+        toggleCart(false);
+      }
+    });
+  </script>
+  <!-- app + sw registration -->
+  <script src="scripts/app.js" defer></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+    }
+  </script>
+
+</body>
+</html>

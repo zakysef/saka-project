@@ -1,0 +1,22 @@
+{
+  "packaging": [
+    {
+      "id": "booster",
+      "name": "Booster Pack",
+      "image": "assets/booster_pack.png",
+      "price": 15000,
+      "quantity": 10
+    },
+    {
+      "id": "starter",
+      "name": "Starter Pack",
+      "image": "assets/starter_pack.png",
+      "price": 85000,
+      "quantity": 50,
+      "promo": {
+        "first_time_discount": 0.1,
+        "promo_text": "10% untuk pembeli pertama"
+      }
+    }
+  ]
+}

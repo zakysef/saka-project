@@ -1,0 +1,197 @@
+/* Animations */
+@keyframes slideIn {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideOut {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-enter {
+  animation: fadeIn 0.15s ease-out;
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Toast animations */
+#saka-toast {
+  transition: transform 0.3s ease-out;
+}
+
+#saka-toast-inner {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Cart drawer */
+.cart-drawer {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Navbar */
+.navbar-scrolled {
+  background: rgba(255, 240, 196, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+/* Card hover effects */
+.cara-card {
+  transition: all 0.3s ease;
+}
+.cara-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Hide scrollbar for carousel */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Desktop pagination */
+@media (min-width: 768px) {
+  .pagination-dots {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+/* Mobile scroll fix */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+  }
+  
+  .mobile-section {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Better mobile cart */
+  .cart-drawer {
+    height: 85vh !important;
+    border-radius: 1.5rem 1.5rem 0 0;
+  }
+  
+  /* Improved mobile carousel */
+  .carousel {
+    margin: 0 -1rem;
+    padding: 0 1rem;
+  }
+
+  /* Enable touch events on buttons */
+  .add-pack-btn {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* Prevent scroll issues */
+  .cart-drawer-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+  
+  /* Better touch targets */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Mobile menu animation */
+  #mobile-menu {
+    transition: all 0.3s ease;
+  }
+
+  /* Mobile cart improvements */
+  .cart-item { padding-left: 1rem; padding-right: 1rem; }
+  .cart-item .qty-btn { background: transparent; border: none; font-weight: 600; }
+  .cart-item .qty { min-width: 28px; }
+  .cart-drawer {
+    width: 100% !important;
+    border-radius: 1rem 1rem 0 0 !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+    max-height: 95vh;
+  }
+  .cart-drawer.open { transform: translateY(0) !important; }
+
+  /* body lock when cart open */
+  .cart-drawer-open { overflow: hidden; position: fixed; width: 100%; height: 100%; }
+
+  /* small circular badge for cart count (attach to #cart-count element) */
+  #cart-count {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:20px;
+    height:20px;
+    padding:0 6px;
+    border-radius:999px;
+    background:#FEF9E1;
+    color:#8C1007;
+    font-size:12px;
+    font-weight:700;
+  }
+
+  /* larger touch targets */
+  .qty-btn, .remove-btn { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+}
+
+/* Smooth transitions for auth buttons */
+#login-toggle-desktop,
+#login-toggle-mobile,
+#logout-desktop,
+#logout-mobile {
+  transition: all 0.15s ease-in-out;
+}
+
+/* Cart item transitions */
+.cart-item {
+  transition: all 0.2s ease-out;
+}
+
+.cart-item-enter {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.cart-item-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.cart-item-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.cart-item-exit-active {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+/* Button interactions */
+.btn-action {
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-action:active {
+  transform: scale(0.95);
+}
